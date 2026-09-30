@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>뽀모와 함께하는 열공 뽀모도로 타이머 🐾</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&family=Gamja+Flower&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        jua: ['Jua', 'sans-serif'],
+                        gowun: ['Gowun Dodum', 'sans-serif'],
+                        gamja: ['Gamja Flower', 'cursive'],
+                    },
+                    colors: {
+                        brand: {
+                            pink: '#FF8EAF',
+                            yellow: '#FFD966',
+                            mint: '#A2E8DD',
+                            cream: '#FFF9E6',
+                            purple: '#D8B4F8',
+                            dark: '#4A3B52',
+                        }
+                    },
+                    boxShadow: {
+                        'cute': '0 8px 0 0 rgba(74, 59, 82, 0.15)',
+                        'cute-sm': '0 4px 0 0 rgba(74, 59, 82, 0.15)',
+                        'cute-pressed': '0 2px 0 0 rgba(74, 59, 82, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Gowun Dodum', sans-serif;
+            background-color: #FFF6EA;
+            background-image: radial-gradient(#FFD966 1.5px, transparent 1.5px), radial-gradient(#FF8EAF 1.5px, #FFF6EA 1.5px);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+        }
+
+        .title-font {
+            font-family: 'Jua', sans-serif;
+        }
+
+        /* Cute Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFF0F5;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FFB6C1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF8EAF;
+        }
+
+        /* Animations */
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-bounce-slow {
+            animation: bounce-slow 3s infinite ease-in-out;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .animate-wiggle {
+            animation: wiggle 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .animate-pulse-soft {
+            animation: pulse-soft 2s infinite ease-in-out;
+        }
+
+        /* Mascot Breathing Animation */
+        @keyframes float-zzz {
+            0% { opacity: 0; transform: translateY(0) scale(0.8); }
+            50% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-20px) scale(1.2); }
+        }
+        .zzz-1 { animation: float-zzz 2.5s infinite 0s; }
+        .zzz-2 { animation: float-zzz 2.5s infinite 0.8s; }
+        .zzz-3 { animation: float-zzz 2.5s infinite 1.6s; }
+
+        .cute-btn {
+            transition: all 0.15s ease;
+        }
+        .cute-btn:active {
+            transform: translateY(4px);
+            box-shadow: none !important;
+        }
+
+        /* Circular Progress Styling */
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-brand-dark flex flex-col justify-between selection:bg-brand-pink selection:text-white pb-10">
+
+    <!-- Top Navigation Header -->
+    <header class="w-full max-w-5xl mx-auto px-4 pt-4 sm:pt-6">
+        <div class="bg-white/90 backdrop-blur-md rounded-3xl p-4 sm:p-5 border-4 border-brand-dark/10 shadow-cute flex flex-wrap items-center justify-between gap-3">
+            
+            <!-- Logo & Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-brand-yellow flex items-center justify-center text-2xl shadow-inner border-2 border-brand-dark/20 animate-bounce-slow">
+                    🐹
+                </div>
+                <div>
+                    <h1 class="title-font text-xl sm:text-2xl text-brand-dark flex items-center gap-1.5">
+                        <span>뽀모와 열공타임!</span>
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-pink-100 text-pink-600 border border-pink-300 font-normal">v2.5</span>
+                    </h1>
+                    <p class="text-xs sm:text-sm text-gray-500 font-gowun">오늘도 즐겁고 집중되는 하루 만들어봐요!</p>
+                </div>
+            </div>
+
+            <!-- Gamification Header Bar (Level & Currency) -->
+            <div class="flex items-center gap-2 sm:gap-4 ml-auto">
+                <!-- Level Badge -->
+                <div class="bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-2xl flex items-center gap-2">
+                    <span class="text-lg">⭐</span>
+                    <div>
+                        <div class="text-[10px] text-amber-700 font-bold uppercase tracking-wider">레벨 <span id="userLevel">1</span></div>
+                        <div class="text-xs font-bold text-amber-900 title-font" id="userTitle">새싹 공부러</div>
+                    </div>
+                </div>
+
+                <!-- Carrot / Tomato Coins -->
+                <div class="bg-orange-50 border-2 border-orange-200 px-3 py-1.5 rounded-2xl flex items-center gap-2">
+                    <span class="text-lg animate-wiggle">🥕</span>
+                    <div>
+                        <div class="text-[10px] text-orange-700 font-bold">당근 포인트</div>
+                        <div class="text-sm font-bold text-orange-900 title-font" id="carrotCount">0개</div>
+                    </div>
+                </div>
+
+                <!-- Settings & Sound Buttons -->
+                <button id="bgmToggleBtn" onclick="toggleAmbientSoundModal()" class="p-2.5 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-2xl border-2 border-purple-300 cute-btn shadow-cute-sm flex items-center justify-center" title="백색소음 설정">
+                    <i data-lucide="music" class="w-5 h-5"></i>
+                </button>
+                <button onclick="openSettingsModal()" class="p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-2xl border-2 border-gray-300 cute-btn shadow-cute-sm flex items-center justify-center" title="타이머 설정">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="w-full max-w-5xl mx-auto px-4 my-6 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: Main Pomodoro Timer Card (7 cols) -->
+        <section class="lg:col-span-7 flex flex-col items-center">
+            <div class="w-full bg-white rounded-3xl p-6 sm:p-8 border-4 border-brand-dark/10 shadow-cute flex flex-col items-center relative overflow-hidden">
+                
+                <!-- Background Pastel Accents -->
+                <div id="bgAccent" class="absolute top-0 left-0 w-full h-3 bg-brand-pink transition-colors duration-500"></div>
+
+                <!-- Mode Selector Pills -->
+                <div class="flex items-center gap-2 p-1.5 bg-gray-100 rounded-2xl border-2 border-gray-200 mb-6 w-full max-w-xs justify-center">
+                    <button id="modeWork" onclick="switchMode('work')" class="flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold title-font transition-all bg-brand-pink text-white shadow-sm">
+                        집중 시간 📚
+                    </button>
+                    <button id="modeShort" onclick="switchMode('shortBreak')" class="flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold title-font transition-all text-gray-500 hover:text-gray-800">
+                        짧은 휴식 🍊
+                    </button>
+                    <button id="modeLong" onclick="switchMode('longBreak')" class="flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold title-font transition-all text-gray-500 hover:text-gray-800">
+                        긴 휴식 🌿
+                    </button>
+                </div>
+
+                <!-- Interactive Mascot Graphic Display -->
+                <div class="relative my-2 w-48 h-48 sm:w-56 sm:h-56 flex items-center justify-center">
+                    
+                    <!-- Circular SVG Progress Bar -->
+                    <svg class="w-full h-full" viewBox="0 0 100 100">
+                        <!-- Background Circle -->
+                        <circle cx="50" cy="50" r="44" stroke="#F1F5F9" stroke-width="8" fill="none" />
+                        <!-- Animated Progress Circle -->
+                        <circle id="progressCircle" class="progress-ring-circle" cx="50" cy="50" r="44" stroke="#FF8EAF" stroke-width="8" stroke-dasharray="276.46" stroke-dashoffset="0" stroke-linecap="round" fill="none" />
+                    </svg>
+
+                    <!-- Mascot Inside Circle -->
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        
+                        <!-- Zzz Sleep Bubble for Paused/Break -->
+                        <div id="mascotZzz" class="hidden absolute -top-1 right-8 flex gap-1 font-jua text-purple-400 font-bold">
+                            <span class="zzz-1 text-sm">Z</span>
+                            <span class="zzz-2 text-base">z</span>
+                            <span class="zzz-3 text-lg">z</span>
+                        </div>
+
+                        <!-- Dynamic Mascot SVG Graphic -->
+                        <div id="mascotContainer" class="w-28 h-28 sm:w-32 sm:h-32 transition-transform duration-300">
+                            <!-- Mascot SVG will be injected dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Digital Clock Display -->
+                <div class="text-center my-3">
+                    <div id="timerDisplay" class="title-font text-5xl sm:text-6xl tracking-wider text-brand-dark drop-shadow-sm">
+                        25:00
+                    </div>
+                    <div id="statusMotivation" class="text-sm font-gowun text-gray-500 mt-1 font-semibold">
+                        멋져요! 공부를 시작해볼까요? 💪
+                    </div>
+                </div>
+
+                <!-- Timer Controls -->
+                <div class="flex items-center gap-3 mt-4 w-full max-w-sm justify-center">
+                    <!-- Reset Button -->
+                    <button onclick="resetTimer()" class="p-3.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl border-2 border-gray-300 cute-btn shadow-cute-sm flex items-center justify-center" title="처음부터 다시">
+                        <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
+                    </button>
+
+                    <!-- Main Start / Pause Button -->
+                    <button id="startBtn" onclick="toggleTimer()" class="flex-1 py-3.5 px-6 bg-brand-pink hover:bg-pink-500 text-white font-bold title-font text-xl rounded-2xl border-2 border-brand-dark/20 cute-btn shadow-cute flex items-center justify-center gap-2">
+                        <i data-lucide="play" class="w-6 h-6 fill-white"></i>
+                        <span id="startBtnText">시작하기</span>
+                    </button>
+
+                    <!-- Skip Button -->
+                    <button onclick="skipSession()" class="p-3.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl border-2 border-gray-300 cute-btn shadow-cute-sm flex items-center justify-center" title="다음 단계로 넘어가기">
+                        <i data-lucide="skip-forward" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <!-- Cycle Dots Indicator -->
+                <div class="flex items-center gap-2 mt-6 bg-cream-50 px-4 py-2 rounded-full border border-amber-200/80">
+                    <span class="text-xs text-amber-800 font-bold mr-1">오늘의 뽀모 세션:</span>
+                    <div id="cycleDots" class="flex items-center gap-1.5">
+                        <!-- Dots rendered in JS -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Right Column: Interactive Tabs Container (5 cols) -->
+        <section class="lg:col-span-5 flex flex-col">
+            <div class="bg-white rounded-3xl p-5 border-4 border-brand-dark/10 shadow-cute flex-1 flex flex-col min-h-[460px]">
+                
+                <!-- Tab Buttons -->
+                <div class="flex border-b-2 border-gray-100 pb-3 gap-2">
+                    <button id="tabBtnTasks" onclick="switchTab('tasks')" class="flex-1 py-2 px-2 text-center rounded-xl font-bold title-font text-sm bg-amber-100 text-amber-900 border-2 border-amber-200 flex items-center justify-center gap-1">
+                        <span>📝 오늘의 할 일</span>
+                    </button>
+                    <button id="tabBtnBadges" onclick="switchTab('badges')" class="flex-1 py-2 px-2 text-center rounded-xl font-bold title-font text-sm text-gray-500 hover:bg-gray-50 flex items-center justify-center gap-1">
+                        <span>🏆 업적 배지</span>
+                    </button>
+                    <button id="tabBtnStats" onclick="switchTab('stats')" class="flex-1 py-2 px-3 text-center rounded-xl font-bold title-font text-sm text-gray-500 hover:bg-gray-50 flex items-center justify-center gap-1">
+                        <span>📊 공부 기록</span>
+                    </button>
+                </div>
+
+                <!-- TAB 1: Tasks / To-Do List -->
+                <div id="tabContentTasks" class="flex-1 flex flex-col pt-4">
+                    
+                    <!-- Add Task Input -->
+                    <form onsubmit="addTask(event)" class="flex gap-2 mb-4">
+                        <input id="taskInput" type="text" placeholder="어떤 공부를 할 건가요? (예: 수학 30쪽 풀어보기)" class="flex-1 px-4 py-2.5 rounded-2xl bg-amber-50/50 border-2 border-amber-200/80 text-sm focus:outline-none focus:border-brand-pink transition-colors font-gowun">
+                        <button type="submit" class="bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold px-4 py-2.5 rounded-2xl border-2 border-amber-600 cute-btn shadow-cute-sm flex items-center justify-center">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </button>
+                    </form>
+
+                    <!-- Task List Scrollable -->
+                    <div id="taskList" class="flex-1 overflow-y-auto space-y-2.5 pr-1 max-h-[300px]">
+                        <!-- Tasks dynamically injected -->
+                    </div>
+
+                    <!-- Current Active Task Highlight Banner -->
+                    <div id="activeTaskBanner" class="mt-4 p-3 bg-pink-50 border-2 border-pink-200 rounded-2xl flex items-center justify-between text-xs text-pink-800">
+                        <div class="flex items-center gap-2 overflow-hidden">
+                            <span class="text-base">📌</span>
+                            <span class="font-bold truncate" id="activeTaskTitle">선택된 목표 공부가 없어요.</span>
+                        </div>
+                        <span class="text-[11px] bg-white px-2 py-0.5 rounded-full border border-pink-300 font-bold shrink-0" id="activeTaskPomoCount">0 🍅</span>
+                    </div>
+                </div>
+
+                <!-- TAB 2: Badges Gallery -->
+                <div id="tabContentBadges" class="hidden flex-1 pt-4 overflow-y-auto max-h-[380px]">
+                    <div class="text-xs text-gray-500 mb-3 text-center font-gowun">
+                        열심히 공부해서 멋진 보상 배지를 모두 모아보세요!
+                    </div>
+                    <div id="badgeGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <!-- Badges dynamically injected -->
+                    </div>
+                </div>
+
+                <!-- TAB 3: Study Stats -->
+                <div id="tabContentStats" class="hidden flex-1 pt-4">
+                    <div class="space-y-4">
+                        <!-- Daily Summary Boxes -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="p-4 bg-teal-50 border-2 border-teal-200 rounded-2xl text-center">
+                                <div class="text-2xl font-bold title-font text-teal-800" id="statTodayPomos">0개</div>
+                                <div class="text-xs text-teal-600 font-bold mt-0.5">오늘 완성한 뽀모</div>
+                            </div>
+                            <div class="p-4 bg-indigo-50 border-2 border-indigo-200 rounded-2xl text-center">
+                                <div class="text-2xl font-bold title-font text-indigo-800" id="statTotalMinutes">0분</div>
+                                <div class="text-xs text-indigo-600 font-bold mt-0.5">총 집중 시간</div>
+                            </div>
+                        </div>
+
+                        <!-- Consecutive Days Streak -->
+                        <div class="p-4 bg-amber-50 border-2 border-amber-200 rounded-2xl flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-amber-200 flex items-center justify-center text-xl">🔥</div>
+                                <div>
+                                    <div class="text-xs text-amber-700 font-bold">연속 공부 스트릭</div>
+                                    <div class="text-lg font-bold text-amber-900 title-font" id="statStreak">1일째 연속 열공 중!</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Motivational Quote Box -->
+                        <div class="p-4 bg-purple-50 border-2 border-purple-200 rounded-2xl">
+                            <div class="text-xs font-bold text-purple-700 mb-1">오늘의 마법 스펠 ✨</div>
+                            <div class="text-xs text-purple-900 font-gowun leading-relaxed" id="dailyQuote">
+                                "작은 집중이 모여 커다란 꿈을 이루어낸단다! 오늘도 최고야!"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Ambient Sound Modal -->
+    <div id="ambientModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-6 border-4 border-brand-dark/10 shadow-2xl max-w-sm w-full animate-pulse-soft">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                <h3 class="title-font text-lg text-brand-dark flex items-center gap-2">
+                    <span>🎵 공부할 때 들을 소리</span>
+                </h3>
+                <button onclick="toggleAmbientSoundModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-2.5">
+                <button onclick="setAmbientSound('none')" id="soundBtnNone" class="w-full p-3 rounded-2xl border-2 border-gray-200 hover:bg-gray-50 flex items-center justify-between text-sm font-bold text-gray-700 transition-all">
+                    <span class="flex items-center gap-2">🔇 소리 없음</span>
+                    <i data-lucide="check" class="w-4 h-4 text-green-500 sound-check hidden"></i>
+                </button>
+                <button onclick="setAmbientSound('rain')" id="soundBtnRain" class="w-full p-3 rounded-2xl border-2 border-gray-200 hover:bg-gray-50 flex items-center justify-between text-sm font-bold text-gray-700 transition-all">
+                    <span class="flex items-center gap-2">🌧️ 차분한 창밖 빗소리</span>
+                    <i data-lucide="check" class="w-4 h-4 text-green-500 sound-check hidden"></i>
+                </button>
+                <button onclick="setAmbientSound('lofi')" id="soundBtnLofi" class="w-full p-3 rounded-2xl border-2 border-gray-200 hover:bg-gray-50 flex items-center justify-between text-sm font-bold text-gray-700 transition-all">
+                    <span class="flex items-center gap-2">🎹 포근한 피아노 멜로디</span>
+                    <i data-lucide="check" class="w-4 h-4 text-green-500 sound-check hidden"></i>
+                </button>
+                <button onclick="setAmbientSound('clock')" id="soundBtnClock" class="w-full p-3 rounded-2xl border-2 border-gray-200 hover:bg-gray-50 flex items-center justify-between text-sm font-bold text-gray-700 transition-all">
+                    <span class="flex items-center gap-2">⏰ 규칙적인 아날로그 시계</span>
+                    <i data-lucide="check" class="w-4 h-4 text-green-500 sound-check hidden"></i>
+                </button>
+            </div>
+
+            <button onclick="toggleAmbientSoundModal()" class="w-full mt-5 py-3 bg-brand-pink text-white font-bold title-font rounded-2xl border-2 border-brand-dark/20 cute-btn shadow-cute-sm">
+                설정 완료!
+            </button>
+        </div>
+    </div>
+
+    <!-- Timer Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-6 border-4 border-brand-dark/10 shadow-2xl max-w-md w-full">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                <h3 class="title-font text-lg text-brand-dark flex items-center gap-2">
+                    <span>⚙️ 타이머 시간 정하기</span>
+                </h3>
+                <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-600 block mb-1">📚 집중 시간 (분)</label>
+                    <input id="inputWorkTime" type="number" min="5" max="60" value="25" class="w-full px-3 py-2 rounded-xl bg-gray-50 border-2 border-gray-200 text-sm font-bold">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600 block mb-1">🍊 짧은 휴식 (분)</label>
+                    <input id="inputShortBreak" type="number" min="1" max="30" value="5" class="w-full px-3 py-2 rounded-xl bg-gray-50 border-2 border-gray-200 text-sm font-bold">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600 block mb-1">🌿 긴 휴식 (분)</label>
+                    <input id="inputLongBreak" type="number" min="5" max="60" value="15" class="w-full px-3 py-2 rounded-xl bg-gray-50 border-2 border-gray-200 text-sm font-bold">
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <span class="text-xs font-bold text-gray-600">휴식 시간 자동 시작</span>
+                    <input id="inputAutoStart" type="checkbox" class="w-5 h-5 rounded border-gray-300 text-brand-pink focus:ring-brand-pink">
+                </div>
+            </div>
+
+            <div class="flex gap-2 mt-6">
+                <button onclick="closeSettingsModal()" class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold title-font rounded-2xl border-2 border-gray-300">
+                    취소
+                </button>
+                <button onclick="saveSettings()" class="flex-1 py-2.5 bg-brand-pink hover:bg-pink-500 text-white font-bold title-font rounded-2xl border-2 border-brand-dark/20 cute-btn shadow-cute-sm">
+                    저장하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-5xl mx-auto px-4 mt-8 text-center text-xs text-gray-500 font-gowun">
+        <p>✨ 초등학생 공부 친구 뽀모도로 타이머 • 집중 25분 / 휴식 5분 법칙으로 매일 멋지게 성장의 기쁨을 느껴보세요!</p>
+    </footer>
+
+    <script>
+        /* ==========================================================================
+           STATE MANAGEMENT & DATA STRUCTURES
+           ========================================================================== */
+        const APP_STATE = {
+            mode: 'work', // 'work', 'shortBreak', 'longBreak'
+            timeLeft: 25 * 60,
+            totalTime: 25 * 60,
+            isRunning: false,
+            timerInterval: null,
+            completedCycles: 0,
+            
+            // Settings
+            settings: {
+                workTime: 25,
+                shortBreak: 5,
+                longBreak: 15,
+                autoStartBreaks: false
+            },
+
+            // Gamification & User Stats
+            user: {
+                carrots: 0,
+                totalFocusMinutes: 0,
+                completedPomosToday: 0,
+                streakDays: 1,
+                activeTaskId: null
+            },
+
+            // Tasks
+            tasks: [
+                { id: 1, title: '수학 문제집 2페이지 풀기 ✏️', pomosDone: 0, completed: false },
+                { id: 2, title: '영어 단어 10개 외우기 🔤', pomosDone: 0, completed: false }
+            ],
+
+            // Badges Data
+            badges: [
+                { id: 'first_pomo', title: '첫 걸음!', desc: '첫 번째 뽀모 완료', icon: '🐣', unlocked: false },
+                { id: 'pomo_3', title: '집중 달인', desc: '오늘 뽀모 3회 달성', icon: '🔥', unlocked: false },
+                { id: 'pomo_5', title: '초강력 집중', desc: '오늘 뽀모 5회 달성', icon: '⚡', unlocked: false },
+                { id: 'carrots_10', title: '당근 부자', desc: '당근 10개 수집', icon: '🥕', unlocked: false },
+                { id: 'task_master', title: '목표 사냥꾼', desc: '할 일 3개 완료하기', icon: '🎯', unlocked: false }
+            ],
+
+            ambientSound: 'none'
+        };
+
+        /* ==========================================================================
+           WEB AUDIO API (Cute Sound Effects & Ambient Generator)
+           ========================================================================== */
+        let audioCtx = null;
+        let ambientOscillators = [];
+        let ambientGainNode = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        // Play Cute Button Sound Effect
+        function playCuteSound(type = 'pop') {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                const now = ctx.currentTime;
+
+                if (type === 'pop') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'finish') {
+                    // Cheerful completion melody
+                    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                    notes.forEach((freq, index) => {
+                        const noteOsc = ctx.createOscillator();
+                        const noteGain = ctx.createGain();
+                        noteOsc.type = 'triangle';
+                        noteOsc.frequency.setValueAtTime(freq, now + index * 0.12);
+                        noteGain.gain.setValueAtTime(0.25, now + index * 0.12);
+                        noteGain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.12 + 0.3);
+                        noteOsc.connect(noteGain);
+                        noteGain.connect(ctx.destination);
+                        noteOsc.start(now + index * 0.12);
+                        noteOsc.stop(now + index * 0.12 + 0.3);
+                    });
+                }
+            } catch (e) {
+                console.log('Audio playback prevented');
+            }
+        }
+
+        // Ambient Sound Synthesizer (Rain, Lofi Chord, Clock Ticks)
+        function setAmbientSound(soundType) {
+            playCuteSound('pop');
+            APP_STATE.ambientSound = soundType;
+            stopAmbientAudio();
+
+            // Update UI buttons inside modal
+            ['none', 'rain', 'lofi', 'clock'].forEach(type => {
+                const btn = document.getElementById(`soundBtn${type.charAt(0).toUpperCase() + type.slice(1)}`);
+                if (btn) {
+                    const icon = btn.querySelector('.sound-check');
+                    if (type === soundType) {
+                        btn.classList.add('border-brand-pink', 'bg-pink-50');
+                        if (icon) icon.classList.remove('hidden');
+                    } else {
+                        btn.classList.remove('border-brand-pink', 'bg-pink-50');
+                        if (icon) icon.classList.add('hidden');
+                    }
+                }
+            });
+
+            if (soundType === 'none') return;
+
+            const ctx = getAudioContext();
+            ambientGainNode = ctx.createGain();
+            ambientGainNode.gain.setValueAtTime(0.08, ctx.currentTime);
+            ambientGainNode.connect(ctx.destination);
+
+            if (soundType === 'rain') {
+                // Synthetic Soft Rain (White Noise + Lowpass Filter)
+                const bufferSize = ctx.sampleRate * 2;
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const output = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+
+                const whiteNoise = ctx.createBufferSource();
+                whiteNoise.buffer = buffer;
+                whiteNoise.loop = true;
+
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 800;
+
+                whiteNoise.connect(filter);
+                filter.connect(ambientGainNode);
+                whiteNoise.start();
+                ambientOscillators.push(whiteNoise);
+
+            } else if (soundType === 'lofi') {
+                // Gentle Warm Sine Pad Chord
+                const freqs = [261.63, 329.63, 392.00, 493.88]; // Cmaj7
+                freqs.forEach(freq => {
+                    const osc = ctx.createOscillator();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                    osc.connect(ambientGainNode);
+                    osc.start();
+                    ambientOscillators.push(osc);
+                });
+            }
+        }
+
+        function stopAmbientAudio() {
+            ambientOscillators.forEach(osc => {
+                try { osc.stop(); } catch(e){}
+            });
+            ambientOscillators = [];
+        }
+
+        /* ==========================================================================
+           MASCOT SVG RENDERER (Hamster Character with States)
+           ========================================================================== */
+        function renderMascot() {
+            const container = document.getElementById('mascotContainer');
+            const zzz = document.getElementById('mascotZzz');
+
+            let mascotSVG = '';
+
+            if (APP_STATE.mode === 'work') {
+                if (APP_STATE.isRunning) {
+                    zzz.classList.add('hidden');
+                    // Studying Hamster with Glasses and Pencil
+                    mascotSVG = `
+                    <svg viewBox="0 0 120 120" class="w-full h-full animate-pulse-soft">
+                        <!-- Ears -->
+                        <circle cx="35" cy="30" r="12" fill="#FFB6C1" stroke="#4A3B52" stroke-width="4"/>
+                        <circle cx="85" cy="30" r="12" fill="#FFB6C1" stroke="#4A3B52" stroke-width="4"/>
+                        <circle cx="35" cy="30" r="6" fill="#FF8EAF"/>
+                        <circle cx="85" cy="30" r="6" fill="#FF8EAF"/>
+                        <!-- Head -->
+                        <ellipse cx="60" cy="60" rx="42" ry="38" fill="#FFE5B4" stroke="#4A3B52" stroke-width="4"/>
+                        <ellipse cx="60" cy="68" rx="28" ry="22" fill="#FFFFFF"/>
+                        <!-- Glasses -->
+                        <circle cx="45" cy="52" r="12" fill="none" stroke="#4A3B52" stroke-width="3"/>
+                        <circle cx="75" cy="52" r="12" fill="none" stroke="#4A3B52" stroke-width="3"/>
+                        <line x1="57" y1="52" x2="63" y2="52" stroke="#4A3B52" stroke-width="3"/>
+                        <!-- Focused Eyes -->
+                        <circle cx="45" cy="52" r="3" fill="#4A3B52"/>
+                        <circle cx="75" cy="52" r="3" fill="#4A3B52"/>
+                        <!-- Cheeks -->
+                        <ellipse cx="33" cy="62" rx="6" ry="4" fill="#FF8EAF" opacity="0.6"/>
+                        <ellipse cx="87" cy="62" rx="6" ry="4" fill="#FF8EAF" opacity="0.6"/>
+                        <!-- Nose & Mouth -->
+                        <polygon points="60,59 57,56 63,56" fill="#FF8EAF"/>
+                        <path d="M 56 63 Q 60 67 64 63" fill="none" stroke="#4A3B52" stroke-width="3" stroke-linecap="round"/>
+                        <!-- Paws holding pencil -->
+                        <ellipse cx="40" cy="80" rx="7" ry="5" fill="#FFE5B4" stroke="#4A3B52" stroke-width="3"/>
+                        <ellipse cx="80" cy="80" rx="7" ry="5" fill="#FFE5B4" stroke="#4A3B52" stroke-width="3"/>
+                        <!-- Pencil -->
+                        <g transform="rotate(-15 60 85)">
+                            <rect x="30" y="82" width="50" height="8" fill="#FFD966" stroke="#4A3B52" stroke-width="2" rx="2"/>
+                            <polygon points="80,82 90,86 80,90" fill="#FFE5B4" stroke="#4A3B52" stroke-width="2"/>
+                            <polygon points="87,85 90,86 87,87" fill="#4A3B52"/>
+                        </g>
+                    </svg>`;
+                } else {
+                    zzz.classList.remove('hidden');
+                    // Sleepy/Resting Hamster
+                    mascotSVG = `
+                    <svg viewBox="0 0 120 120" class="w-full h-full">
+                        <circle cx="35" cy="32" r="12" fill="#FFB6C1" stroke="#4A3B52" stroke-width="4"/>
+                        <circle cx="85" cy="32" r="12" fill="#FFB6C1" stroke="#4A3B52" stroke-width="4"/>
+                        <ellipse cx="60" cy="62" rx="42" ry="38" fill="#FFE5B4" stroke="#4A3B52" stroke-width="4"/>
+                        <ellipse cx="60" cy="70" rx="28" ry="22" fill="#FFFFFF"/>
+                        <!-- Sleeping Eyes (curved lines) -->
+                        <path d="M 38 54 Q 45 60 52 54" fill="none" stroke="#4A3B52" stroke-width="3.5" stroke-linecap="round"/>
+                        <path d="M 68 54 Q 75 60 82 54" fill="none" stroke="#4A3B52" stroke-width="3.5" stroke-linecap="round"/>
+                        <ellipse cx="32" cy="62" rx="6" ry="4" fill="#FF8EAF" opacity="0.6"/>
+                        <ellipse cx="88" cy="62" rx="6" ry="4" fill="#FF8EAF" opacity="0.6"/>
+                        <polygon points="60,60 57,57 63,57" fill="#FF8EAF"/>
+                    </svg>`;
+                }
+            } else {
+                zzz.classList.add('hidden');
+                // Relaxing Hamster Drinking Juice on Break
+                mascotSVG = `
+                <svg viewBox="0 0 120 120" class="w-full h-full animate-wiggle">
+                    <circle cx="35" cy="30" r="12" fill="#FFB6C1" stroke="#4A3B52" stroke-width="4"/>
+                    <circle cx="85" cy="30" r="12" fill="#FFB6C1" stroke="#4A3B52" stroke-width="4"/>
+                    <ellipse cx="60" cy="60" rx="42" ry="38" fill="#FFE5B4" stroke="#4A3B52" stroke-width="4"/>
+                    <ellipse cx="60" cy="68" rx="28" ry="22" fill="#FFFFFF"/>
+                    <!-- Happy Eyes (^ ^) -->
+                    <path d="M 40 52 L 46 46 L 52 52" fill="none" stroke="#4A3B52" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M 68 52 L 74 46 L 80 52" fill="none" stroke="#4A3B52" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <ellipse cx="32" cy="60" rx="6" ry="4" fill="#FF8EAF" opacity="0.6"/>
+                    <ellipse cx="88" cy="60" rx="6" ry="4" fill="#FF8EAF" opacity="0.6"/>
+                    <!-- Boba Juice Cup -->
+                    <rect x="48" y="72" width="24" height="28" fill="#A2E8DD" stroke="#4A3B52" stroke-width="3" rx="4"/>
+                    <line x1="60" y1="60" x2="60" y2="76" stroke="#FF8EAF" stroke-width="4" stroke-linecap="round"/>
+                </svg>`;
+            }
+
+            container.innerHTML = mascotSVG;
+        }
+
+        /* ==========================================================================
+           TIMER LOGIC & CONTROLS
+           ========================================================================== */
+        function updateTimerDisplay() {
+            const minutes = Math.floor(APP_STATE.timeLeft / 60);
+            const seconds = APP_STATE.timeLeft % 60;
+            const formatted = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            document.getElementById('timerDisplay').textContent = formatted;
+            document.title = `${formatted} - ${APP_STATE.mode === 'work' ? '집중 중 📚' : '휴식 중 🍊'}`;
+
+            // Update Circle Progress Ring
+            const circle = document.getElementById('progressCircle');
+            const circumference = 2 * Math.PI * 44; // r=44
+            const progress = APP_STATE.timeLeft / APP_STATE.totalTime;
+            const dashoffset = circumference * (1 - progress);
+            circle.style.strokeDashoffset = dashoffset;
+        }
+
+        function toggleTimer() {
+            playCuteSound('pop');
+            if (APP_STATE.isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            APP_STATE.isRunning = true;
+            document.getElementById('startBtnText').textContent = '일시정지';
+            const startIcon = document.getElementById('startBtn').querySelector('i');
+            if (startIcon) {
+                startIcon.setAttribute('data-lucide', 'pause');
+                lucide.createIcons();
+            }
+            
+            renderMascot();
+
+            APP_STATE.timerInterval = setInterval(() => {
+                if (APP_STATE.timeLeft > 0) {
+                    APP_STATE.timeLeft--;
+                    updateTimerDisplay();
+                } else {
+                    handleSessionComplete();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            APP_STATE.isRunning = false;
+            clearInterval(APP_STATE.timerInterval);
+            document.getElementById('startBtnText').textContent = '다시 시작';
+            const startIcon = document.getElementById('startBtn').querySelector('i');
+            if (startIcon) {
+                startIcon.setAttribute('data-lucide', 'play');
+                lucide.createIcons();
+            }
+            renderMascot();
+        }
+
+        function resetTimer() {
+            playCuteSound('pop');
+            pauseTimer();
+            if (APP_STATE.mode === 'work') {
+                APP_STATE.timeLeft = APP_STATE.settings.workTime * 60;
+            } else if (APP_STATE.mode === 'shortBreak') {
+                APP_STATE.timeLeft = APP_STATE.settings.shortBreak * 60;
+            } else {
+                APP_STATE.timeLeft = APP_STATE.settings.longBreak * 60;
+            }
+            APP_STATE.totalTime = APP_STATE.timeLeft;
+            updateTimerDisplay();
+        }
+
+        function skipSession() {
+            playCuteSound('pop');
+            pauseTimer();
+            if (APP_STATE.mode === 'work') {
+                switchMode('shortBreak');
+            } else {
+                switchMode('work');
+            }
+        }
+
+        function switchMode(newMode) {
+            playCuteSound('pop');
+            pauseTimer();
+            APP_STATE.mode = newMode;
+
+            const modeWorkBtn = document.getElementById('modeWork');
+            const modeShortBtn = document.getElementById('modeShort');
+            const modeLongBtn = document.getElementById('modeLong');
+            const bgAccent = document.getElementById('bgAccent');
+            const progressCircle = document.getElementById('progressCircle');
+            const statusMotivation = document.getElementById('statusMotivation');
+
+            // Reset Tab styling
+            [modeWorkBtn, modeShortBtn, modeLongBtn].forEach(btn => {
+                btn.className = "flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold title-font transition-all text-gray-500 hover:text-gray-800";
+            });
+
+            if (newMode === 'work') {
+                modeWorkBtn.className = "flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold title-font transition-all bg-brand-pink text-white shadow-sm";
+                bgAccent.className = "absolute top-0 left-0 w-full h-3 bg-brand-pink transition-colors duration-500";
+                progressCircle.setAttribute('stroke', '#FF8EAF');
+                APP_STATE.timeLeft = APP_STATE.settings.workTime * 60;
+                statusMotivation.textContent = '멋져요! 공부를 시작해볼까요? 💪';
+            } else if (newMode === 'shortBreak') {
+                modeShortBtn.className = "flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold title-font transition-all bg-brand-mint text-brand-dark shadow-sm";
+                bgAccent.className = "absolute top-0 left-0 w-full h-3 bg-brand-mint transition-colors duration-500";
+                progressCircle.setAttribute('stroke', '#A2E8DD');
+                APP_STATE.timeLeft = APP_STATE.settings.shortBreak * 60;
+                statusMotivation.textContent = '기지개를 켜고 눈을 쉬어주세요 🍊';
+            } else {
+                modeLongBtn.className = "flex-1 py-2 px-3 rounded-xl text-xs sm:text-sm font-bold title-font transition-all bg-brand-purple text-white shadow-sm";
+                bgAccent.className = "absolute top-0 left-0 w-full h-3 bg-brand-purple transition-colors duration-500";
+                progressCircle.setAttribute('stroke', '#D8B4F8');
+                APP_STATE.timeLeft = APP_STATE.settings.longBreak * 60;
+                statusMotivation.textContent = '충분히 휴식하고 물 한 잔 마셔요 🌿';
+            }
+
+            APP_STATE.totalTime = APP_STATE.timeLeft;
+            updateTimerDisplay();
+            renderMascot();
+        }
+
+        /* ==========================================================================
+           SESSION COMPLETION & GAMIFICATION
+           ========================================================================== */
+        function handleSessionComplete() {
+            pauseTimer();
+            playCuteSound('finish');
+
+            // Trigger Confetti Effect
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            if (APP_STATE.mode === 'work') {
+                APP_STATE.completedCycles++;
+                APP_STATE.user.completedPomosToday++;
+                APP_STATE.user.totalFocusMinutes += APP_STATE.settings.workTime;
+                APP_STATE.user.carrots += 2; // Earn 2 carrots per pomodoro
+
+                // Update active task if selected
+                if (APP_STATE.user.activeTaskId) {
+                    const task = APP_STATE.tasks.find(t => t.id === APP_STATE.user.activeTaskId);
+                    if (task) {
+                        task.pomosDone++;
+                        renderTasks();
+                    }
+                }
+
+                checkBadges();
+                updateUserStatsUI();
+
+                // Switch to break automatically or prompt
+                if (APP_STATE.completedCycles % 4 === 0) {
+                    switchMode('longBreak');
+                } else {
+                    switchMode('shortBreak');
+                }
+
+                if (APP_STATE.settings.autoStartBreaks) {
+                    startTimer();
+                }
+
+            } else {
+                // Break ended -> switch back to work
+                switchMode('work');
+            }
+        }
+
+        /* ==========================================================================
+           GAMIFICATION: BADGES & LEVEL SYSTEM
+           ========================================================================== */
+        function updateUserStatsUI() {
+            document.getElementById('carrotCount').textContent = `${APP_STATE.user.carrots}개`;
+            document.getElementById('statTodayPomos').textContent = `${APP_STATE.user.completedPomosToday}개`;
+            document.getElementById('statTotalMinutes').textContent = `${APP_STATE.user.totalFocusMinutes}분`;
+            document.getElementById('statStreak').textContent = `${APP_STATE.user.streakDays}일째 연속 열공 중!`;
+
+            // Calculate Level
+            const level = Math.floor(APP_STATE.user.completedPomosToday / 2) + 1;
+            document.getElementById('userLevel').textContent = level;
+
+            const titles = ['새싹 공부러 🐣', '집중 스타 ⭐️', '열공 마스터 📚', '공부 마법사 🧙‍♂️', '전설의 학자 👑'];
+            const titleIndex = Math.min(level - 1, titles.length - 1);
+            document.getElementById('userTitle').textContent = titles[titleIndex];
+
+            renderCycleDots();
+        }
+
+        function renderCycleDots() {
+            const container = document.getElementById('cycleDots');
+            container.innerHTML = '';
+            for (let i = 1; i <= 4; i++) {
+                const isDone = (APP_STATE.completedCycles % 4) >= i || (APP_STATE.completedCycles > 0 && APP_STATE.completedCycles % 4 === 0);
+                const dot = document.createElement('div');
+                dot.className = `w-4 h-4 rounded-full flex items-center justify-center text-[10px] transition-all ${
+                    isDone ? 'bg-orange-400 text-white shadow-sm' : 'bg-amber-100 text-amber-400'
+                }`;
+                dot.textContent = isDone ? '🍅' : '⚪';
+                container.appendChild(dot);
+            }
+        }
+
+        function checkBadges() {
+            let newlyUnlocked = false;
+
+            APP_STATE.badges.forEach(b => {
+                if (!b.unlocked) {
+                    if (b.id === 'first_pomo' && APP_STATE.user.completedPomosToday >= 1) b.unlocked = true;
+                    if (b.id === 'pomo_3' && APP_STATE.user.completedPomosToday >= 3) b.unlocked = true;
+                    if (b.id === 'pomo_5' && APP_STATE.user.completedPomosToday >= 5) b.unlocked = true;
+                    if (b.id === 'carrots_10' && APP_STATE.user.carrots >= 10) b.unlocked = true;
+                    if (b.id === 'task_master' && APP_STATE.tasks.filter(t => t.completed).length >= 3) b.unlocked = true;
+
+                    if (b.unlocked) newlyUnlocked = true;
+                }
+            });
+
+            renderBadges();
+        }
+
+        function renderBadges() {
+            const grid = document.getElementById('badgeGrid');
+            grid.innerHTML = '';
+
+            APP_STATE.badges.forEach(badge => {
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-2xl border-2 flex flex-col items-center text-center transition-all ${
+                    badge.unlocked 
+                        ? 'bg-amber-50 border-amber-300 text-amber-900 shadow-sm' 
+                        : 'bg-gray-50 border-gray-200 text-gray-400 opacity-60'
+                }`;
+
+                card.innerHTML = `
+                    <div class="text-3xl mb-1 ${badge.unlocked ? 'animate-bounce-slow' : 'grayscale'}">${badge.icon}</div>
+                    <div class="font-bold title-font text-xs">${badge.title}</div>
+                    <div class="text-[10px] text-gray-500 font-gowun mt-0.5">${badge.desc}</div>
+                    <div class="mt-2 text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                        badge.unlocked ? 'bg-amber-200 text-amber-800' : 'bg-gray-200 text-gray-500'
+                    }">
+                        ${badge.unlocked ? '획득 완료!' : '잠김'}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        /* ==========================================================================
+           TASK MANAGEMENT (To-Do List)
+           ========================================================================== */
+        function addTask(e) {
+            e.preventDefault();
+            const input = document.getElementById('taskInput');
+            const title = input.value.trim();
+            if (!title) return;
+
+            playCuteSound('pop');
+            const newTask = {
+                id: Date.now(),
+                title: title,
+                pomosDone: 0,
+                completed: false
+            };
+
+            APP_STATE.tasks.push(newTask);
+            if (!APP_STATE.user.activeTaskId) {
+                setActiveTask(newTask.id);
+            }
+
+            input.value = '';
+            renderTasks();
+            checkBadges();
+        }
+
+        function toggleTaskComplete(id) {
+            playCuteSound('pop');
+            const task = APP_STATE.tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                renderTasks();
+                checkBadges();
+            }
+        }
+
+        function deleteTask(id) {
+            playCuteSound('pop');
+            APP_STATE.tasks = APP_STATE.tasks.filter(t => t.id !== id);
+            if (APP_STATE.user.activeTaskId === id) {
+                APP_STATE.user.activeTaskId = APP_STATE.tasks.length > 0 ? APP_STATE.tasks[0].id : null;
+            }
+            renderTasks();
+            updateActiveTaskBanner();
+        }
+
+        function setActiveTask(id) {
+            playCuteSound('pop');
+            APP_STATE.user.activeTaskId = id;
+            renderTasks();
+            updateActiveTaskBanner();
+        }
+
+        function updateActiveTaskBanner() {
+            const bannerTitle = document.getElementById('activeTaskTitle');
+            const bannerCount = document.getElementById('activeTaskPomoCount');
+
+            const activeTask = APP_STATE.tasks.find(t => t.id === APP_STATE.user.activeTaskId);
+            if (activeTask) {
+                bannerTitle.textContent = activeTask.title;
+                bannerCount.textContent = `${activeTask.pomosDone} 🍅`;
+            } else {
+                bannerTitle.textContent = '선택된 목표 공부가 없어요.';
+                bannerCount.textContent = '0 🍅';
+            }
+        }
+
+        function renderTasks() {
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
+
+            if (APP_STATE.tasks.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-8 text-xs text-gray-400 font-gowun">
+                        등록된 공부 목표가 없어요.<br>위 칸에 목표를 적어보세요! ✏️
+                    </div>
+                `;
+                updateActiveTaskBanner();
+                return;
+            }
+
+            APP_STATE.tasks.forEach(task => {
+                const isActive = task.id === APP_STATE.user.activeTaskId;
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-2xl border-2 flex items-center justify-between gap-2 transition-all ${
+                    isActive ? 'bg-pink-50/80 border-pink-300 shadow-sm' : 'bg-gray-50/70 border-gray-200'
+                }`;
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-2.5 overflow-hidden flex-1 cursor-pointer" onclick="setActiveTask(${task.id})">
+                        <button onclick="event.stopPropagation(); toggleTaskComplete(${task.id})" class="w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-colors ${
+                            task.completed ? 'bg-green-500 border-green-600 text-white' : 'border-gray-300 bg-white'
+                        }">
+                            ${task.completed ? '✓' : ''}
+                        </button>
+                        <span class="text-xs font-bold truncate ${task.completed ? 'line-through text-gray-400' : 'text-gray-800'}">
+                            ${task.title}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-[11px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+                            ${task.pomosDone} 🍅
+                        </span>
+                        <button onclick="deleteTask(${task.id})" class="text-gray-400 hover:text-red-500 p-1">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+
+                list.appendChild(item);
+            });
+
+            lucide.createIcons();
+            updateActiveTaskBanner();
+        }
+
+        /* ==========================================================================
+           TAB SWITCHING & MODALS
+           ========================================================================== */
+        function switchTab(tabName) {
+            playCuteSound('pop');
+            const tasksBtn = document.getElementById('tabBtnTasks');
+            const badgesBtn = document.getElementById('tabBtnBadges');
+            const statsBtn = document.getElementById('tabBtnStats');
+
+            const tasksContent = document.getElementById('tabContentTasks');
+            const badgesContent = document.getElementById('tabContentBadges');
+            const statsContent = document.getElementById('tabContentStats');
+
+            [tasksBtn, badgesBtn, statsBtn].forEach(btn => {
+                btn.className = "flex-1 py-2 px-2 text-center rounded-xl font-bold title-font text-sm text-gray-500 hover:bg-gray-50 flex items-center justify-center gap-1";
+            });
+
+            tasksContent.classList.add('hidden');
+            badgesContent.classList.add('hidden');
+            statsContent.classList.add('hidden');
+
+            if (tabName === 'tasks') {
+                tasksBtn.className = "flex-1 py-2 px-2 text-center rounded-xl font-bold title-font text-sm bg-amber-100 text-amber-900 border-2 border-amber-200 flex items-center justify-center gap-1";
+                tasksContent.classList.remove('hidden');
+            } else if (tabName === 'badges') {
+                badgesBtn.className = "flex-1 py-2 px-2 text-center rounded-xl font-bold title-font text-sm bg-amber-100 text-amber-900 border-2 border-amber-200 flex items-center justify-center gap-1";
+                badgesContent.classList.remove('hidden');
+            } else {
+                statsBtn.className = "flex-1 py-2 px-2 text-center rounded-xl font-bold title-font text-sm bg-amber-100 text-amber-900 border-2 border-amber-200 flex items-center justify-center gap-1";
+                statsContent.classList.remove('hidden');
+            }
+        }
+
+        function toggleAmbientSoundModal() {
+            playCuteSound('pop');
+            const modal = document.getElementById('ambientModal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+
+        function openSettingsModal() {
+            playCuteSound('pop');
+            document.getElementById('inputWorkTime').value = APP_STATE.settings.workTime;
+            document.getElementById('inputShortBreak').value = APP_STATE.settings.shortBreak;
+            document.getElementById('inputLongBreak').value = APP_STATE.settings.longBreak;
+            document.getElementById('inputAutoStart').checked = APP_STATE.settings.autoStartBreaks;
+
+            const modal = document.getElementById('settingsModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeSettingsModal() {
+            playCuteSound('pop');
+            const modal = document.getElementById('settingsModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function saveSettings() {
+            playCuteSound('pop');
+            APP_STATE.settings.workTime = parseInt(document.getElementById('inputWorkTime').value) || 25;
+            APP_STATE.settings.shortBreak = parseInt(document.getElementById('inputShortBreak').value) || 5;
+            APP_STATE.settings.longBreak = parseInt(document.getElementById('inputLongBreak').value) || 15;
+            APP_STATE.settings.autoStartBreaks = document.getElementById('inputAutoStart').checked;
+
+            closeSettingsModal();
+            resetTimer();
+        }
+
+        /* ==========================================================================
+           INITIALIZATION ON PAGE LOAD
+           ========================================================================== */
+        window.onload = function() {
+            // Initialize Lucide Icons
+            lucide.createIcons();
+
+            // Render Mascot
+            renderMascot();
+
+            // Render Initial Timer & UI
+            updateTimerDisplay();
+            updateUserStatsUI();
+            renderTasks();
+            renderBadges();
+
+            // Setup Initial Active Task
+            if (APP_STATE.tasks.length > 0) {
+                APP_STATE.user.activeTaskId = APP_STATE.tasks[0].id;
+                updateActiveTaskBanner();
+            }
+        };
+    </script>
+</body>
+</html>
